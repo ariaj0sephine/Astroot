@@ -9,7 +9,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 1; // starts on Camera tab
+  int _currentIndex = 0; // starts on Camera tab
 
   static const List<Widget> _screens = [
     HomeTab(),
