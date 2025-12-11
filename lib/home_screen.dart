@@ -9,7 +9,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0; // starts on Camera tab
+  int _currentIndex = 1; // starts on Camera tab
 
   static const List<Widget> _screens = [
     HomeTab(),
@@ -58,8 +58,8 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: SizedBox(
         height: 84, // a little taller so icons have breathing room
         child: NavigationBar(
-          backgroundColor: Colors.black.withOpacity(0.4), // subtle dark glass effect
-          indicatorColor: const Color(0xFF56D3A3),
+            backgroundColor: Colors.black54,   // exactly 54% opacity ≈ 0.54, // subtle dark glass effect
+          indicatorColor: const Color(0xFF725ABA),
           selectedIndex: _currentIndex,
           onDestinationSelected: (i) => setState(() => _currentIndex = i),
           labelBehavior: NavigationDestinationLabelBehavior.alwaysHide, // no labels
@@ -99,7 +99,7 @@ class HomeTab extends StatelessWidget {
     children: [
       BackdropFilter(
         filter: ui.ImageFilter.blur(sigmaX: 7, sigmaY: 7),
-        child: Container(color: const Color(0xFF00145).withOpacity(0.15)),
+        child: Container(color: const Color(0x02600145)),    // 26 in hex = 38 in decimal → exactly 15% opacity
       ),
       const Center(
         child: Padding(

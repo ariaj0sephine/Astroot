@@ -60,7 +60,8 @@ flutter:
   assets:
     - assets/images/
     - assets/fonts/
-
+    - assets/images/astronaut_w_phone.png
+    - assets/images/eye.png
 
   fonts:
     - family: FunkieRetro

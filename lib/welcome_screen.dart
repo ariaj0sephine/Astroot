@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart'; // ← Your main screen (unchanged)
+import 'home_screen.dart'; // Your main screen (unchanged)
+
+// This line brings in your combined Login + Sign Up page
+import 'auth_screen.dart'; // ← Make sure auth_screen.dart is in the same folder as this file
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -108,16 +111,18 @@ class WelcomePage extends StatelessWidget {
               ),
             ),
 
-            // GET STARTED Button - exact shape, gradient & glow
+            // GET STARTED Button - NOW OPENS LOGIN/SIGNUP (visuals unchanged)
             Positioned(
-              bottom: screenHeight * 0.15,
+              bottom: screenHeight * 0.09,
               left: screenWidth * 0.22,
               right: screenWidth * 0.22,
               child: GestureDetector(
                 onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const HomeScreen()),
+                  // This opens your combined Login/Sign Up screen
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const AuthScreen(),
+                    ),
                   );
                 },
                 child: Container(
@@ -134,7 +139,7 @@ class WelcomePage extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.purple.withOpacity(0.5),
+                        color: Colors.purple.withValues(alpha: 0.5), // Updated for modern Flutter
                         blurRadius: 22,
                         offset: const Offset(0, 10),
                       ),
@@ -155,42 +160,44 @@ class WelcomePage extends StatelessWidget {
               ),
             ),
 
-            // Bottom text - perfectly centered
-            Positioned(
-              bottom: screenHeight * 0.07,
-              left: 0,
-              right: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "DON'T HAVE AN ACCOUNT? ",
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (_) => const HomeScreen()),
-                      );
-                    },
-                    child: const Text(
-                      'SIGN UP',
-                      style: TextStyle(
-                        color: Color.fromRGBO(220, 160, 255, 1),
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // Bottom text - "SIGN UP" now opens Login/Sign Up screen too
+            // Positioned(
+            //   bottom: screenHeight * 0.07,
+            //   left: 0,
+            //   right: 0,
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       const Text(
+            //         "DON'T HAVE AN ACCOUNT? ",
+            //         style: TextStyle(
+            //           color: Colors.white70,
+            //           fontSize: 13.5,
+            //           fontWeight: FontWeight.w500,
+            //         ),
+            //       ),
+            //       GestureDetector(
+            //         onTap: () {
+            //           // This also opens your combined Login/Sign Up screen
+            //           Navigator.of(context).push(
+            //             MaterialPageRoute(
+            //               builder: (_) => const AuthScreen(),
+            //             ),
+            //           );
+            //         },
+            //         child: const Text(
+            //           'SIGN UP',
+            //           style: TextStyle(
+            //             color: Color.fromRGBO(220, 160, 255, 1),
+            //             fontSize: 13.5,
+            //             fontWeight: FontWeight.bold,
+            //             decoration: TextDecoration.underline,
+            //           ),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),
