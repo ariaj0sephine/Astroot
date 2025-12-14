@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 // Import your HomeScreen here (adjust path if needed)
-import 'home_screen.dart'; // Change this if your file name/path is different
+import 'nav_bar.dart'; // Change this if your file name/path is different
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});

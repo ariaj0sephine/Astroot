@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'welcome_screen.dart';   // ← THIS IS NOW USED → no more warning in main.dart!
-import 'home_screen.dart';      // ← keep this if you need it later (optional)
+import 'nav_bar.dart';      // ← keep this if you need it later (optional)
 
 class SplashWidget extends StatefulWidget {
   const SplashWidget({Key? key}) : super(key: key);

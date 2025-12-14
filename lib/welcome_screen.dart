@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart'; // Your main screen (unchanged)
+import 'nav_bar.dart'; // Your main screen (unchanged)
 
 // This line brings in your combined Login + Sign Up page
 import 'auth_screen.dart'; // ← Make sure auth_screen.dart is in the same folder as this file
