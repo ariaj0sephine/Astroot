@@ -1,0 +1,41 @@
+name: project
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'  # Changed to standard range—yours (^3.5.0) might be too strict for some packages
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  flutter_svg: ^2.0.10+1
+
+  cupertino_icons: ^1.0.8
+  firebase_core: ^4.2.1
+  firebase_auth: ^6.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/  # Covers ALL your images (astronaut.png, sitting.png, icons, etc.)
+    - assets/fonts/
+    - assets/icons/
+
+  fonts:
+    - family: Inter  # Fixed: Single section, no duplicate
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf  # Fixed slash: / not \
+          weight: 400
+    - family: FunkieRetro  # Kept yours, but unused—remove later if wanted
+      fonts:
+        - asset: assets/fonts/Funkie_Retro.otf
+          weight: 400
