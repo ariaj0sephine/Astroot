@@ -6,7 +6,7 @@ import 'services/auth_services.dart';     // This points to your new file
 import 'package:firebase_auth/firebase_auth.dart';
 
 // Import your HomeScreen here (adjust path if needed)
-import 'home_screen.dart'; // Change this if your file name/path is different
+import 'home_page.dart'; // Change this if your file name/path is different
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
