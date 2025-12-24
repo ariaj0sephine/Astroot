@@ -2,11 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'services/auth_services.dart';     // This points to your new file
+import 'services/auth_services.dart';     // Your AuthService file
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';  // NEW: For optional name save
 
-// Import your HomeScreen here (adjust path if needed)
-import 'home_page.dart'; // Change this if your file name/path is different
+// Import your HomeScreen (adjust path if needed)
+import 'home_page.dart'; // Change if your home file is named differently
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -22,7 +23,7 @@ class _AuthScreenState extends State<AuthScreen> {
     setState(() => isLogin = !isLogin);
   }
 
-  // Simulate login/signup success → go to Home
+  // Go to Home after success
   void goToHome() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (_) => const HomeScreen()),
@@ -38,7 +39,7 @@ class _AuthScreenState extends State<AuthScreen> {
         transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
         child: isLogin
             ? LoginPage(onToggle: toggle, onSuccess: goToHome)
-            : SignUpPage(onToggle: toggle, onSuccess: goToHome),
+            : SignUpPage(onToggle: toggle, onSuccess: goToHome, switchToLogin: toggle),
       ),
     );
   }
@@ -58,7 +59,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  bool _obscurePassword = true; // Added this to control password visibility
+  bool _obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
       ),
       child: Stack(
         children: [
-          // Astronaut + circles
+          // Astronaut + circles (unchanged – perfect!)
           Positioned(
             top: -50,
             left: -20,
@@ -115,7 +116,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
 
-          // Login Card
+          // Login Card (unchanged layout)
           Positioned(
             top: 360,
             left: 36,
@@ -135,7 +136,7 @@ class _LoginPageState extends State<LoginPage> {
                   const Text('E MAIL', style: TextStyle(color: Colors.white, fontSize: 12)),
                   const SizedBox(height: 8),
                   TextField(
-                    controller: emailController,  // ← This is the new line! (Grabs what user types)
+                    controller: emailController,
                     style: const TextStyle(color: Color(0xFF6A788B)),
                     decoration: InputDecoration(
                       hintText: 'Example@gmail.com',
@@ -152,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 8),
                   TextField(
                     controller: passwordController,
-                    obscureText: _obscurePassword, // Now controlled by state
+                    obscureText: _obscurePassword,
                     style: const TextStyle(color: Color(0xFF6A788B)),
                     decoration: InputDecoration(
                       hintText: 'Example_1',
@@ -161,10 +162,10 @@ class _LoginPageState extends State<LoginPage> {
                       fillColor: const Color(0xFF333976),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
-                      suffixIcon: IconButton( // Replaced broken PNG with reliable built-in icon
+                      suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                          color: Colors.white70, // Bright and visible on dark background
+                          color: Colors.white70,
                           size: 24,
                         ),
                         onPressed: () {
@@ -184,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
 
                   const SizedBox(height: 30),
 
-                  // Login Button
+                  // Login Button (UPDATED with better feedback)
                   Center(
                     child: Container(
                       width: 220,
@@ -195,55 +196,47 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       child: ElevatedButton(
                         onPressed: () async {
-                          // Grab what user typed (trim removes extra spaces)
                           String email = emailController.text.trim();
                           String password = passwordController.text;
 
-                          // Quick safety checks (best practice – prevents crashes)
                           if (email.isEmpty || password.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Please fill email and password')),
                             );
-                            return;  // Stop if empty
-                          }
-                          if (password.length < 6) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Password must be at least 6 characters')),
-                            );
                             return;
                           }
 
-                          // Show loading spinner (full screen overlay – user sees it's working)
                           showDialog(
                             context: context,
-                            barrierDismissible: false,  // Can't tap away
+                            barrierDismissible: false,
                             builder: (context) => const Center(
-                              child: CircularProgressIndicator(color: Colors.white),  // Matches your dark theme
+                              child: CircularProgressIndicator(color: Colors.white),
                             ),
                           );
 
-                          // Call your AuthService (this talks to Firebase)
                           User? user = await AuthService().login(email, password);
 
-                          // Hide loading
-                          Navigator.pop(context);
+                          Navigator.pop(context); // Hide loading
 
                           if (user != null) {
-                            // Success! Go to Home and show happy message
-                            widget.onSuccess();  // Your existing goToHome()
+                            widget.onSuccess(); // Go to Home
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Login successful! Welcome back!')),
+                              const SnackBar(
+                                content: Text('Login successful! Welcome back 🌟'),
+                                backgroundColor: Color(0xFF4CAF50),
+                              ),
                             );
-                            // Clear fields for next time (good hygiene)
                             emailController.clear();
                             passwordController.clear();
                           } else {
-                            // Failed (wrong email/password) – show friendly error
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Login failed – check email or password')),
+                              const SnackBar(
+                                content: Text('Login failed – check email/password'),
+                                backgroundColor: Colors.red,
+                              ),
                             );
                           }
-                        }, // Goes to HomeScreen
+                        },
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent),
                         child: const Text('LOG IN', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
                       ),
@@ -273,6 +266,7 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+
   @override
   void dispose() {
     emailController.dispose();
@@ -285,8 +279,9 @@ class _LoginPageState extends State<LoginPage> {
 class SignUpPage extends StatefulWidget {
   final VoidCallback onToggle;
   final VoidCallback onSuccess;
+  final VoidCallback switchToLogin; // NEW: To flip back after success
 
-  const SignUpPage({super.key, required this.onToggle, required this.onSuccess});
+  const SignUpPage({super.key, required this.onToggle, required this.onSuccess, required this.switchToLogin});
 
   @override
   State<SignUpPage> createState() => _SignUpPageState();
@@ -296,8 +291,9 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();  // New one for confirm
+  final TextEditingController confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _obscureConfirm = true; // NEW: Independent toggle for confirm field
 
   @override
   Widget build(BuildContext context) {
@@ -318,7 +314,7 @@ class _SignUpPageState extends State<SignUpPage> {
             children: [
               const SizedBox(height: 40),
 
-              // Astronaut (same style as login)
+              // Astronaut (unchanged)
               Stack(
                 alignment: Alignment.center,
                 children: [
@@ -336,19 +332,12 @@ class _SignUpPageState extends State<SignUpPage> {
 
               const SizedBox(height: 30),
 
-              _buildField(label: 'YOUR NAME',
-                hint: 'e.g., Rio',
-                controller: nameController,
-              ),
+              _buildField(label: 'YOUR NAME', hint: 'e.g., Rio', controller: nameController),
               const SizedBox(height: 20),
-              _buildField(label: 'E MAIL',
-                  hint: 'Example@gmail.com',
-                  controller: emailController,
-                  keyboardType: TextInputType.emailAddress
-              ),
+              _buildField(label: 'E MAIL', hint: 'Example@gmail.com', controller: emailController, keyboardType: TextInputType.emailAddress),
               const SizedBox(height: 20),
 
-              // Password with eye toggle (already perfect, no change needed)
+              // Password with toggle
               TextField(
                 controller: passwordController,
                 obscureText: _obscurePassword,
@@ -369,12 +358,11 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
               ),
 
-              //confirm password textbox (not in design!!)
-
               const SizedBox(height: 20),
+              // Confirm Password with own toggle
               TextField(
-                controller: confirmPasswordController,  // Connects to the new controller
-                obscureText: true,  // Hides the text (password style)
+                controller: confirmPasswordController,
+                obscureText: _obscureConfirm,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   labelText: 'CONFIRM PASSWORD',
@@ -384,16 +372,14 @@ class _SignUpPageState extends State<SignUpPage> {
                   filled: true,
                   fillColor: const Color(0xFF333976),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
-                  ),
-                  suffixIcon: IconButton(  // Optional eye icon – copy from your password field if you want
-                    icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility, color: Colors.white70),
-                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
+                  suffixIcon: IconButton(
+                    icon: Icon(_obscureConfirm ? Icons.visibility_off : Icons.visibility, color: Colors.white70),
+                    onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
                   ),
                 ),
               ),
+
               const SizedBox(height: 30),
 
               SizedBox(
@@ -401,13 +387,11 @@ class _SignUpPageState extends State<SignUpPage> {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () async {
-                    // Grab input
-                    String name = nameController.text.trim();  // Optional, but you can save to Firebase later
+                    String name = nameController.text.trim();
                     String email = emailController.text.trim();
                     String password = passwordController.text;
                     String confirm = confirmPasswordController.text;
 
-                    // Safety checks
                     if (name.isEmpty || email.isEmpty || password.isEmpty || confirm.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Please fill all fields')),
@@ -427,7 +411,6 @@ class _SignUpPageState extends State<SignUpPage> {
                       return;
                     }
 
-                    // Show loading
                     showDialog(
                       context: context,
                       barrierDismissible: false,
@@ -436,34 +419,41 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                     );
 
-                    // Call AuthService signup (ignores name for now – Firebase auth is email/password only)
                     User? user = await AuthService().signUp(email, password);
 
-                    // Hide loading
-                    Navigator.pop(context);
+                    Navigator.pop(context); // Hide loading
 
                     if (user != null) {
-                      // Success!
-                      widget.onSuccess();  // Go to Home
+                      // OPTIONAL: Save name to Firestore (nice touch!)
+                      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+                        'name': name,
+                        'email': email,
+                        'createdAt': FieldValue.serverTimestamp(),
+                      }, SetOptions(merge: true));
+
+                      widget.onSuccess(); // Go to Home
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Account created! Welcome aboard!')),
+                        const SnackBar(
+                          content: Text('Account created! Welcome to the stars 🌌'),
+                          backgroundColor: Color(0xFF4CAF50),
+                        ),
                       );
-                      // Clear everything and switch back to Login mode
+
+                      // Clear fields and switch to Login
                       nameController.clear();
                       emailController.clear();
                       passwordController.clear();
                       confirmPasswordController.clear();
-                      // Switch mode (your toggle is already set up for this)
-                      if (context.findAncestorStateOfType<_AuthScreenState>()?.isLogin != null) {
-                        context.findAncestorStateOfType<_AuthScreenState>()?.toggle();
-                      }
+                      widget.switchToLogin(); // Auto flip back
                     } else {
-                      // Failed (email taken, etc.)
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Signup failed – email might already exist')),
+                        const SnackBar(
+                          content: Text('Signup failed – email might already exist'),
+                          backgroundColor: Colors.red,
+                        ),
                       );
                     }
-                  }, // Goes to HomeScreen
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF5F6ADC),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
@@ -496,8 +486,8 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget _buildField({
     required String label,
     required String hint,
-    TextEditingController? controller,
-    TextInputType keyboardType = TextInputType.text
+    required TextEditingController controller,
+    TextInputType keyboardType = TextInputType.text,
   }) {
     return TextField(
       controller: controller,
@@ -515,6 +505,7 @@ class _SignUpPageState extends State<SignUpPage> {
       ),
     );
   }
+
   @override
   void dispose() {
     nameController.dispose();
