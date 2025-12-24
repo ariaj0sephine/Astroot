@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
+import 'profile_page.dart';  // ← Add this line only (tells Flutter where to find it)
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,7 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const RealHomeTab(),   // ← Our beautiful Figma homepage
     const CameraTab(),
     const CalendarTab(),
-    const ProfileTab(),
+    const ProfilePage(),
   ];
 
   // Your cosmic gradient (kept exactly the same)
