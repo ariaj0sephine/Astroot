@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
+import 'edit_name.dart';     // ← Your new page
+import 'edit_about.dart';    // ← Your new page
+import 'history_page.dart';       // ← Your new page
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  // These variables will change when user saves from edit pages
+  String userName = 'Valentina M';
+  String userAbout = 'Just..Do it';
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +92,7 @@ class ProfilePage extends StatelessWidget {
               const SizedBox(height: 0),
 
               Transform.translate(
-                offset: const Offset(0, -80),
+                offset: const Offset(0, -30),
                 child: const Center(
                   child: Text(
                     'Edit',
@@ -100,31 +112,75 @@ class ProfilePage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 32),
                   child: Column(
                     children: [
-                      _buildSectionRow(
-                        icon: Icons.person,
-                        label: 'Name',
-                        value: 'Valentina M',
-                        valueColor: const Color(0xFF6A48E7),
+                      // Name row — now tappable to open EditNamePage
+                      InkWell(
+                        onTap: () async {
+                          final newName = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditNamePage(currentName: userName),
+                            ),
+                          );
+                          if (newName != null && newName is String) {
+                            setState(() {
+                              userName = newName;
+                            });
+                          }
+                        },
+                        child: _buildSectionRow(
+                          icon: Icons.person,
+                          label: 'Name',
+                          value: userName,
+                          valueColor: const Color(0xFF6A48E7),
+                        ),
                       ),
                       const SizedBox(height: 20),
 
-                      _buildSectionRow(
-                        icon: Icons.info,
-                        label: 'About',
-                        value: 'Just..Do it',
-                        valueColor: const Color(0xFF5F41C9),
+                      // About row — now tappable to open EditAboutPage
+                      InkWell(
+                        onTap: () async {
+                          final newAbout = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditAboutPage(currentAbout: userAbout),
+                            ),
+                          );
+                          if (newAbout != null && newAbout is String) {
+                            setState(() {
+                              userAbout = newAbout;
+                            });
+                          }
+                        },
+                        child: _buildSectionRow(
+                          icon: Icons.info,
+                          label: 'About',
+                          value: userAbout,
+                          valueColor: const Color(0xFF5F41C9),
+                        ),
                       ),
                       const SizedBox(height: 20),
 
-                      _buildSectionRow(
-                        icon: Icons.history,
-                        label: 'History',
-                        value: '',
-                        valueColor: Colors.transparent,
+                      // History row — now tappable to open HistoryPage
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const HistoryPage(),
+                            ),
+                          );
+                        },
+                        child: _buildSectionRow(
+                          icon: Icons.history,
+                          label: 'History',
+                          value: '',
+                          valueColor: Colors.transparent,
+                        ),
                       ),
                       const SizedBox(height: 30),
 
-                      GestureDetector(
+                      // Log Out — kept tappable with nice ripple
+                      InkWell(
                         onTap: () {
                           print('Log Out tapped');
                         },
@@ -155,8 +211,8 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  // UPDATED: Value text now placed UNDER the label (left-aligned)
-  static Widget _buildSectionRow({
+  // This builds each row — exactly the same as before (value under label, left-aligned)
+  Widget _buildSectionRow({
     required IconData icon,
     required String label,
     required String value,
@@ -188,7 +244,7 @@ class ProfilePage extends StatelessWidget {
         if (value.isNotEmpty) ...[
           const SizedBox(height: 8),
           Padding(
-            padding: const EdgeInsets.only(left: 50), // Aligns with label text (icon width 30 + space 20)
+            padding: const EdgeInsets.only(left: 50),
             child: Text(
               value,
               style: TextStyle(
