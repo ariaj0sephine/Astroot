@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'profile_page.dart';  // ← Add this line only (tells Flutter where to find it)
+import 'event_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,7 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static final List<Widget> _screens = [
     const RealHomeTab(),   // ← Our beautiful Figma homepage
     const CameraTab(),
-    const CalendarTab(),
+    EventWidget(),
     const ProfilePage(),
   ];
 
