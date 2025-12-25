@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'camera_tab.dart';  // Your REAL camera (preview + snap)—not placeholder!
-
+import 'ar_sky_map_screen.dart';  // Your AR tab (from Phase 3)
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -9,7 +9,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;  // 3 tabs: 0=RealHomeTab, 1=Calendar, 2=Profile (camera pushed—no tab)
+  int _currentIndex = 0;  // 4 tabs: 0=RealHomeTab, 1=Calendar, 2=Profile (camera pushed—no tab), 3=ar cam
 
   static const LinearGradient _cosmicGradient = LinearGradient(
     begin: Alignment.topCenter,
@@ -29,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
       const RealHomeTab(),
       const CalendarTab(),
       const ProfileTab(),
+      const ARSkyMapScreen(),  // New: AR Sky Map tab (index 3)
     ];
 
     return Scaffold(
@@ -60,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
             NavigationDestination(icon: Icon(Icons.home_outlined, size: 30), selectedIcon: Icon(Icons.home, size: 30), label: ''),
             NavigationDestination(icon: Icon(Icons.calendar_today_outlined, size: 30), selectedIcon: Icon(Icons.calendar_today, size: 30), label: ''),
             NavigationDestination(icon: Icon(Icons.account_circle_outlined, size: 30), selectedIcon: Icon(Icons.account_circle, size: 30), label: ''),
+            NavigationDestination(icon: const Icon(Icons.location_on_outlined, size: 30), selectedIcon: const Icon(Icons.location_on, size: 30), label: '',),
           ],
         ),
       ),

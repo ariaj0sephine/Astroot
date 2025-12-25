@@ -31,9 +31,11 @@ dependencies:
 
   path_provider: ^2.1.4
 
-geolocator: ^12.0.0
-sensors_plus: ^5.0.0
-ar_flutter_plugin: ^0.7.3
+  vector_math: ^2.1.4
+
+  geolocator: ^12.0.0
+  sensors_plus: ^5.0.0
+  ar_flutter_plugin_2: ^0.0.3  # AR for sky text labels (stable version)
 
 dev_dependencies:
   flutter_test:
