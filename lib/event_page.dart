@@ -108,27 +108,28 @@ class _EventWidgetState extends State<EventWidget> {
     }).toList();
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text('EVENTS', style: TextStyle(color: Colors.white, fontSize: 20)),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-            onPressed: () {},
-          ),
-        ],
-      ),
+
       body: Container(
         decoration: const BoxDecoration(gradient: _cosmicGradient),
         child: Column(
           children: [
+            // Add the "EVENTS" title manually at the top
+            Padding(
+              padding: const EdgeInsets.only(top: 45, bottom: 20),  // Space from very top
+              child: const Text(
+                'EVENTS',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
             // Tabs row — tappable filters
             Padding(
-              padding: const EdgeInsets.only(top: 130, left: 20, right: 20, bottom: 20),
+              padding: const EdgeInsets.only(top: 15, left: 20, right: 20, bottom: 20),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -173,7 +174,7 @@ class _EventWidgetState extends State<EventWidget> {
             // Scrollable list of filtered events
             Expanded(
               child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 26),
+                padding: const EdgeInsets.fromLTRB(26, 0, 26, 40),
                 itemCount: filteredEvents.length,
                 itemBuilder: (context, index) {
                   final event = filteredEvents[index];
@@ -203,7 +204,7 @@ class _EventWidgetState extends State<EventWidget> {
                         );
                       },
                       child: Container(
-                        height: 150,
+                        constraints: const BoxConstraints(minHeight: 150),
                         decoration: BoxDecoration(
                           color: const Color.fromRGBO(51, 57, 118, 1),
                           borderRadius: BorderRadius.circular(15),
