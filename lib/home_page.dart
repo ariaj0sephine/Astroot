@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'camera_tab.dart';  // Your REAL camera (preview + snap)—not placeholder!
 import 'virtual_planatorium.dart';  // Your AR tab (from Phase 3)
 import 'event_page.dart';
+import 'profile_page.dart';  // Your new profile file
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
       const RealHomeTab(),
       const VirtualPlanetariumScreen(),
       const EventWidget(),
-      const ProfileTab(),
+      ProfilePage(),
     ];
 
     return Scaffold(
@@ -107,7 +108,7 @@ class RealHomeTab extends StatelessWidget {
                   GestureDetector(  // Tap to Profile tab (index 2)
                     onTap: () {
                       final homeState = context.findAncestorStateOfType<_HomeScreenState>();
-                      homeState?._currentIndex = 2;
+                      homeState?._currentIndex = 3;
                       homeState?.setState(() {});
                     },
                     child: const Icon(Icons.person_outline, color: Colors.white, size: 40),
@@ -191,8 +192,8 @@ class RealHomeTab extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _buildNavCard('AR CAM', Icons.camera_alt, null, context), // Push camera
-                _buildNavCard('CALENDAR', Icons.calendar_today, 1, context),  // Tab 1
-                _buildNavCard('PROFILE', Icons.person, 2, context),  // Tab 2
+                _buildNavCard('CALENDAR', Icons.calendar_today, 2, context),  // Tab 1
+                _buildNavCard('PROFILE', Icons.person, 3, context),  // Tab 2
               ],
             ),
           ),
