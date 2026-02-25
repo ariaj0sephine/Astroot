@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'camera_tab.dart';  // Your REAL camera (preview + snap)—not placeholder!
-import 'virtual_planatorium.dart';  // Your AR tab (from Phase 3)
+import 'visisble_tonight.dart';  // Your AR tab (from Phase 3)
 import 'event_page.dart';
 import 'profile_page.dart';  // Your new profile file
 
@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final List<Widget> screens = [  // 3 only—no camera tab (push instead for immersion)
       const RealHomeTab(),
-      const VirtualPlanetariumScreen(),
+      const VisibleTonightScreen(),
       const EventWidget(),
       ProfilePage(),
     ];

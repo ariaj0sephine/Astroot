@@ -116,7 +116,7 @@ class _EventWidgetState extends State<EventWidget> {
           children: [
             // Add the "EVENTS" title manually at the top
             Padding(
-              padding: const EdgeInsets.only(top: 45, bottom: 20),  // Space from very top
+              padding: const EdgeInsets.only(top: 80, bottom: 20),  // Space from very top
               child: const Text(
                 'EVENTS',
                 style: TextStyle(

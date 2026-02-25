@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:project/home_page.dart';
 import 'package:project/splash_screen.dart';
 import 'firebase_options.dart';  // This file was just created!
+import 'package:geolocator/geolocator.dart';  // For LocationService (GPS)
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();  // Important line!
