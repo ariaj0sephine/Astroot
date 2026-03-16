@@ -38,6 +38,7 @@ dependencies:
   intl: ^0.18.1        # Pretty times like "5:12 PM"
   flutter_datetime_picker_plus: ^2.2.0  # Simple date/time picker
   geocoding: ^3.0.0
+  flutter_animate: ^4.5.2
 
 dev_dependencies:
   flutter_test:

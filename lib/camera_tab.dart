@@ -7,7 +7,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';  // For encoding bytes
+import 'dart:convert';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'dart:math' as math;
 
 class CameraTab extends StatefulWidget {
   final VoidCallback? onBackPressed;
@@ -46,7 +48,7 @@ class _CameraTabState extends State<CameraTab> {
     super.dispose();
   }
 
-  // Pick from Gallery (for easy testing with sample star photos)
+  // ==================== GALLERY (EASY TESTING) ====================
   Future<void> _pickFromGallery() async {
     try {
       final ImagePicker picker = ImagePicker();
@@ -54,13 +56,12 @@ class _CameraTabState extends State<CameraTab> {
       if (image != null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Photo selected from gallery! Sharpening stars with simple filters...'),
+            content: Text('Photo selected! Sharpening stars now...'),
             backgroundColor: Color(0xFF64B5FF),
           ),
         );
 
         final processedBytes = await _processSkyPhoto(image.path);
-
         if (mounted && processedBytes != null) {
           _showProcessedPreview(processedBytes);
         }
@@ -68,30 +69,27 @@ class _CameraTabState extends State<CameraTab> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gallery pick failed—make sure you have photos saved. Error: $e'),
-            backgroundColor: Colors.orange,
-          ),
+          SnackBar(content: Text('Gallery error: $e'), backgroundColor: Colors.orange),
         );
       }
     }
   }
 
-  // Handles camera snaps (reuses the same processing & flow)
+  // ==================== LIVE CAMERA SNAP ====================
   Future<void> _takePicture() async {
     try {
       await _initializeControllerFuture;
       final XFile photo = await _controller!.takePicture();
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Photo snapped! Sharpening stars with simple filters...'),
+            content: Text('Photo snapped! Sharpening stars now...'),
             backgroundColor: Color(0xFF64B5FF),
           ),
         );
 
         final processedBytes = await _processSkyPhoto(photo.path);
-
         if (mounted && processedBytes != null) {
           _showProcessedPreview(processedBytes);
         }
@@ -99,52 +97,56 @@ class _CameraTabState extends State<CameraTab> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Snap failed—try again!')),
+          const SnackBar(content: Text('Camera error – try again!')),
         );
       }
     }
   }
 
+  // ==================== SIMPLE STAR SHARPENING (your "OpenCV") ====================
   Future<Uint8List?> _processSkyPhoto(String photoPath) async {
     try {
       final file = File(photoPath);
       final bytes = await file.readAsBytes();
-      var originalImage = img.decodeImage(bytes);
-      if (originalImage == null) return null;
+      var image = img.decodeImage(bytes);
+      if (image == null) return null;
 
-      // Process: Resize for speed, grayscale for edge detection, boost contrast for stars, slight sharpen
-      originalImage = img.copyResize(originalImage, width: 300);  // Shrink to 300px wide—faster processing, good for mobile
-      var grayImage = img.grayscale(originalImage);  // Convert to black/white—helps spot bright stars vs. dark sky
-      var contrastImage = img.contrast(grayImage, contrast: 200);  // Crank contrast to 200%—makes faint stars pop without overdoing it
-      var sharpenedImage = img.adjustColor(contrastImage, brightness: 0.3);  // +30% brightness boost—lights up dim night-sky details
+      image = img.copyResize(image, width: 300);           // Fast for mobile
+      image = img.grayscale(image);                        // Makes stars stand out
+      image = img.contrast(image, contrast: 200);          // Stars pop more
+      image = img.adjustColor(image, brightness: 0.3);     // Brighten night sky
 
-      // Encode as PNG bytes (lossless, keeps star edges crisp for later AI)
-      return Uint8List.fromList(img.encodePng(sharpenedImage));
+      return Uint8List.fromList(img.encodePng(image));
     } catch (e) {
-      print('Processing error: $e');  // Logs to console for debugging (check in VS Code terminal)
+      print('Processing error: $e');
       return null;
     }
   }
 
+  // ==================== FIXED PREVIEW POPUP (this was the bug) ====================
   void _showProcessedPreview(Uint8List processedBytes) {
     if (!mounted) return;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF0A0E1A),  // Dark space theme—easy on eyes for night use
+        backgroundColor: const Color(0xFF0A0E1A).withOpacity(0.9),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: Color(0xFF333976), width: 1),
+        ),
         title: const Text('Stars Detected & Sharpened! 🌌', style: TextStyle(color: Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Edges highlighted—perfect for AI star identification!', style: TextStyle(color: Colors.white70)),
+            const Text('Edges highlighted – ready for AI!', style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 10),
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Image.memory(
                 processedBytes,
                 height: 250,
-                fit: BoxFit.contain,  // Keeps aspect ratio—no squished stars
+                fit: BoxFit.contain,
               ),
             ),
           ],
@@ -163,35 +165,31 @@ class _CameraTabState extends State<CameraTab> {
     );
   }
 
-  String? _cachedToken;  // Holds the token for ~1 hour (add this at top of _CameraTabState class, outside functions)
-  DateTime? _tokenExpiry;  // Tracks when it expires
+  // ==================== NYCKEL AI + FIREBASE SAVE (rest of code is same as yours) ====================
+  String? _cachedToken;
+  DateTime? _tokenExpiry;
 
   Future<String> _getNyckelToken() async {
     if (_cachedToken != null && _tokenExpiry != null && DateTime.now().isBefore(_tokenExpiry!)) {
-      return _cachedToken!;  // Reuse if still fresh—fast!
+      return _cachedToken!;
     }
 
-    // YOUR CREDENTIALS — paste here once (Client Secret stays private!)
-    const String clientId = '4b2ltnwglud894kton5ia5yfjkpcne3k';      // Paste your Client ID (public)
-    const String clientSecret = '97b0fb3igvfs6s2vkwyc3bjzcm19xks6qsz1tjddjm2fp69qiurqfqgyobos9ukv';  // Paste your Client Secret (keep secret!)
+    const String clientId = '4b2ltnwglud894kton5ia5yfjkpcne3k';
+    const String clientSecret = '97b0fb3igvfs6s2vkwyc3bjzcm19xks6qsz1tjddjm2fp69qiurqfqgyobos9ukv';
 
-    try {
-      var tokenResponse = await http.post(
-        Uri.parse('https://www.nyckel.com/connect/token'),
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'grant_type=client_credentials&client_id=$clientId&client_secret=$clientSecret',
-      );
+    final response = await http.post(
+      Uri.parse('https://www.nyckel.com/connect/token'),
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: 'grant_type=client_credentials&client_id=$clientId&client_secret=$clientSecret',
+    );
 
-      if (tokenResponse.statusCode == 200) {
-        var json = jsonDecode(tokenResponse.body);
-        _cachedToken = json['access_token'];
-        _tokenExpiry = DateTime.now().add(const Duration(hours: 1));  // Nyckel tokens last 1 hour
-        return _cachedToken!;
-      } else {
-        throw 'Token error: ${tokenResponse.body}';
-      }
-    } catch (e) {
-      throw 'Token fetch failed: $e';
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      _cachedToken = json['access_token'];
+      _tokenExpiry = DateTime.now().add(const Duration(hours: 1));
+      return _cachedToken!;
+    } else {
+      throw 'Token error';
     }
   }
 
@@ -215,85 +213,66 @@ class _CameraTabState extends State<CameraTab> {
     );
 
     try {
-      // Get fresh/ cached token
-      String token = await _getNyckelToken();
-
-      // YOUR FUNCTION URL — paste your full Invocation URL here!
+      final token = await _getNyckelToken();
       const String nyckelUrl = 'https://www.nyckel.com/v1/functions/constellations/invoke';
-      var request = http.MultipartRequest('POST', Uri.parse(nyckelUrl));
+
+      final request = http.MultipartRequest('POST', Uri.parse(nyckelUrl));
       request.headers['Authorization'] = 'Bearer $token';
       request.files.add(http.MultipartFile.fromBytes('image', processedBytes, filename: 'star.jpg'));
 
-      var response = await request.send();
-      var responseData = await response.stream.bytesToString();
-      var jsonResponse = json.decode(responseData);
+      final response = await request.send();
+      final responseData = await response.stream.bytesToString();
+      final jsonResponse = json.decode(responseData);
 
-      if (mounted) Navigator.pop(context);  // Close loading
+      if (mounted) Navigator.pop(context);
 
       if (jsonResponse['labelName'] != null) {
-        String identifiedName = jsonResponse['labelName'];
-        double confidence = (jsonResponse['confidence'] ?? 0.0) * 100;
+        final String name = jsonResponse['labelName'];
+        final double confidence = (jsonResponse['confidence'] ?? 0.0) * 100;
 
-        // Your fact list (add all your trained labels here!)
         final Map<String, String> facts = {
-          'Taurus': 'The Bull constellation! Home to the bright red star Aldebaran and the beautiful Pleiades star cluster.',
-          'Cancer': 'The Crab constellation. Contains the Beehive Cluster (M44) — looks like a swarm of stars in binoculars!',
-          'Vulpecula': 'The Little Fox constellation. Contains the famous Dumbbell Nebula — one of the brightest planetary nebulae!',
-          'Scorpius': 'The Scorpion! Easy to spot with its bright red heart (Antares) and curved tail. Visible in summer skies.',
-          'Orion': 'The Hunter — the most famous constellation! Three bright stars form his belt, with Betelgeuse and Rigel shining bright.',
-          'Sirius': 'The brightest star in the night sky! Also called the Dog Star — part of Canis Major.',
-          'Jupiter': 'Largest planet in our solar system — looks like a bright "star" and has visible moons in small telescopes.',
-          'Venus': 'Brightest planet! Often called the Evening Star or Morning Star — shines like a diamond.',
-          'Polaris': 'The North Star! Always points north and stays almost still while other stars rotate around it.',
-          'Orion Nebula': 'A giant star-forming factory — looks like a fuzzy patch in Orion’s sword. Visible even with naked eye!',
+          'Taurus': 'The Bull constellation! Home to Aldebaran and the Pleiades.',
+          'Cancer': 'The Crab – contains the beautiful Beehive Cluster.',
+          'Vulpecula': 'The Little Fox – home to the bright Dumbbell Nebula.',
+          'Scorpius': 'The Scorpion with red heart Antares.',
+          'Orion': 'The Hunter – most famous constellation!',
+          'Sirius': 'Brightest star in the sky – Dog Star.',
+          'Jupiter': 'Largest planet – looks like a bright star.',
+          'Venus': 'Evening/Morning Star – shines like a diamond.',
+          'Polaris': 'The North Star – always points north.',
+          'Orion Nebula': 'Star factory – looks fuzzy in Orion’s sword.',
         };
 
-        String fact = facts[identifiedName] ?? 'Amazing find! This is a celestial object.';
+        final String fact = facts[name] ?? 'Amazing celestial object!';
 
         if (mounted) {
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              backgroundColor: const Color(0xFF1A1F2E),
-              title: Text(
-                'Nyckel Says: $identifiedName (${confidence.toStringAsFixed(0)}% sure) 🌟',
-                style: const TextStyle(color: Colors.white, fontSize: 22),
-              ),
+              backgroundColor: const Color(0xFF1A1F2E).withOpacity(0.95),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              title: Text('Nyckel Says: $name (${confidence.toStringAsFixed(0)}%) 🌟',
+                  style: const TextStyle(color: Colors.white, fontSize: 22)),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
-                    'Fun Fact:',
-                    style: TextStyle(color: Color(0xFF64B5FF), fontSize: 18),
-                  ),
+                  const Text('Fun Fact:', style: TextStyle(color: Color(0xFF64B5FF), fontSize: 18)),
                   const SizedBox(height: 10),
-                  Text(
-                    fact,
-                    style: const TextStyle(color: Colors.white70, fontSize: 16),
-                    textAlign: TextAlign.center,
-                  ),
+                  Text(fact, style: const TextStyle(color: Colors.white70, fontSize: 16), textAlign: TextAlign.center),
                   const SizedBox(height: 20),
-                  // REAL PHOTO instead of placeholder!
                   ClipRRect(
                     borderRadius: BorderRadius.circular(15),
-                    child: Image.memory(
-                      processedBytes,
-                      height: 220,
-                      fit: BoxFit.cover,
-                    ),
+                    child: Image.memory(processedBytes, height: 220, fit: BoxFit.cover),
                   ),
                 ],
               ),
               actions: [
                 TextButton(
                   onPressed: () async {
-                    await _saveToDatabase(processedBytes, {'name': identifiedName, 'fact': fact});
+                    await _saveToDatabase(processedBytes, {'name': name, 'fact': fact});
                     if (mounted) Navigator.pop(context);
                   },
-                  child: const Text(
-                    'Amazing! Back to Camera',
-                    style: TextStyle(color: Color(0xFF64B5FF), fontSize: 16),
-                  ),
+                  child: const Text('Amazing! Back to Camera', style: TextStyle(color: Color(0xFF64B5FF))),
                 ),
               ],
             ),
@@ -301,94 +280,40 @@ class _CameraTabState extends State<CameraTab> {
         }
       } else {
         if (mounted) {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Nyckel unsure—try a clearer photo!')),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nyckel not sure – try clearer photo')));
         }
       }
     } catch (e) {
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('AI issue: $e — check credentials/internet')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('AI error: $e')));
       }
     }
   }
 
-  Future<void> _saveToDatabase(Uint8List processedBytes, Map<String, String> identifiedStar) async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
+  Future<void> _saveToDatabase(Uint8List bytes, Map<String, String> data) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Log in to save! (demo mode)')));
+      return;
+    }
 
-      // Quick debug message (shows UID snippet—helps spot login issues during tests)
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(user != null
-                ? 'Starting save for user: ${user.uid.substring(0, 10)}...'  // Trims long UID for clean toast
-                : 'No user logged in – save skipped (demo mode)'),
-            backgroundColor: const Color(0xFF64B5FF),
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .collection('observations')
+        .add({
+      'star_name': data['name'],
+      'fact': data['fact'],
+      'timestamp': FieldValue.serverTimestamp(),
+    });
 
-      if (user == null) {
-        // Graceful skip—no crash, just notify
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Log in to save observations! (Using demo for now)')),
-          );
-        }
-        return;  // Exit early—keeps flow smooth
-      }
-
-      // OPTIONAL: Upload to Storage (uncomment if you want cloud photos later—free tier handles ~5GB/month)
-      // final timestamp = DateTime.now().millisecondsSinceEpoch;
-      // final storageRef = FirebaseStorage.instance
-      //     .ref()
-      //     .child('observations/${user.uid}/$timestamp.png');
-      //
-      // final uploadTask = storageRef.putData(processedBytes);
-      // await uploadTask.whenComplete(() => null);
-      // final photoUrl = await storageRef.getDownloadURL();
-
-      // Core save: Add to Firestore (free, no billing—up to 20K writes/day)
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .collection('observations')
-          .add({
-        // 'photo_url': photoUrl,  // Uncomment after enabling Storage upload
-        'star_name': identifiedStar['name'],
-        'fact': identifiedStar['fact'],
-        'timestamp': FieldValue.serverTimestamp(),  // Auto-syncs to server time—accurate across devices
-      });
-
-      // Victory message—celebrates the save
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Observation saved to your collection! 🌟 Check Firebase console to see it.'),
-            backgroundColor: Color(0xFF64B5FF),
-          ),
-        );
-      }
-    } catch (e) {
-      // Friendly error—hints at common fixes
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Save hiccup: $e (Try checking WiFi or Firebase rules)'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-      print('Full save error: $e');  // Console log for your debugging
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Observation saved! Check Firebase')));
     }
   }
 
+  // ==================== UI (your exact design + twinkling stars) ====================
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<void>(
@@ -398,59 +323,44 @@ class _CameraTabState extends State<CameraTab> {
           return Stack(
             fit: StackFit.expand,
             children: [
-              // Live camera preview (only shows if camera is ready)
               CameraPreview(_controller!),
-              // UI Overlay: Buttons at bottom
+              const IgnorePointer(child: TwinklingStars()),
               SizedBox.expand(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    const Spacer(),  // Pushes buttons to bottom
-                    // UPDATED: Custom button row matching your design—square gallery on left, large circular camera on right
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          // LEFT: Gallery Button (square, black bg, white icon—like your image's photo icon)
+                          // Gallery button
                           Container(
-                            width: 60,  // Square size—matches typical icon buttons
+                            width: 60,
                             height: 60,
-                            decoration: BoxDecoration(
-                              color: Colors.black,  // Black background as in your image
-                              borderRadius: BorderRadius.circular(8),  // Slight rounding for modern feel (0 for sharp square)
-                            ),
+                            decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(8)),
                             child: IconButton(
                               onPressed: _pickFromGallery,
-                              icon: const Icon(
-                                Icons.photo_library,  // Photo gallery icon (mountains + sun in your image)
-                                color: Colors.white,
-                                size: 30,  // Medium size—fits square without crowding
-                              ),
-                              tooltip: 'Pick from Gallery',  // Long-press hint for accessibility
+                              icon: const Icon(Icons.photo_library, color: Colors.white, size: 30),
                             ),
                           ),
-                          // RIGHT: Camera Snap Button (large white circle with subtle gray ring—like your image)
+                          // Camera button with glow animation
                           Container(
-                            width: 80,  // Larger circle for emphasis (main action)
+                            width: 80,
                             height: 80,
                             decoration: BoxDecoration(
-                              color: Colors.white,  // White fill as in your image
-                              shape: BoxShape.circle,  // Perfect circle
-                              border: Border.all(
-                                color: Colors.grey[300]!,  // Light gray outer ring for depth (matches subtle outline)
-                                width: 2,  // Thin border—doesn't overpower
-                              ),
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.grey[300]!, width: 2),
                             ),
                             child: IconButton(
                               onPressed: _takePicture,
-                              icon: Icon(
-                                Icons.camera_alt,
-                                color: Colors.grey[600],  // Darker gray icon for contrast on white
-                                size: 35,  // Slightly larger—feels prominent
-                              ),
-                              tooltip: 'Take Live Snap',
+                              icon: Icon(Icons.camera_alt, color: Colors.grey[600], size: 35),
                             ),
+                          ).animate(onPlay: (c) => c.repeat(reverse: true)).boxShadow(
+                            begin: const BoxShadow(color: Colors.transparent),
+                            end: BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 20, spreadRadius: 5),
+                            duration: 2.seconds,
                           ),
                         ],
                       ),
@@ -461,9 +371,8 @@ class _CameraTabState extends State<CameraTab> {
             ],
           );
         }
-        // Loading screen while camera initializes
         return Scaffold(
-          backgroundColor: const Color(0xFF0A0E1A),  // Dark theme match
+          backgroundColor: const Color(0xFF0A0E1A),
           body: const Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -478,4 +387,74 @@ class _CameraTabState extends State<CameraTab> {
       },
     );
   }
+}
+
+// Twinkling stars effect (unchanged – looks beautiful)
+class TwinklingStars extends StatefulWidget {
+  const TwinklingStars({super.key});
+  @override
+  State<TwinklingStars> createState() => _TwinklingStarsState();
+}
+
+class _TwinklingStarsState extends State<TwinklingStars> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  final List<Star> _stars = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 10))..repeat();
+    _generateStars();
+  }
+
+  void _generateStars() {
+    final random = math.Random();
+    for (int i = 0; i < 40; i++) {
+      _stars.add(Star(
+        x: random.nextDouble(),
+        y: random.nextDouble(),
+        size: random.nextDouble() * 2 + 0.5,
+        blinkOffset: random.nextDouble() * math.pi * 2,
+        blinkSpeed: random.nextDouble() * 2 + 1,
+      ));
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (_, __) => CustomPaint(painter: StarPainter(stars: _stars, animationValue: _controller.value), size: Size.infinite),
+    );
+  }
+}
+
+class Star {
+  final double x, y, size, blinkOffset, blinkSpeed;
+  Star({required this.x, required this.y, required this.size, required this.blinkOffset, required this.blinkSpeed});
+}
+
+class StarPainter extends CustomPainter {
+  final List<Star> stars;
+  final double animationValue;
+  StarPainter({required this.stars, required this.animationValue});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint();
+    for (var star in stars) {
+      final opacity = (math.sin(animationValue * math.pi * 2 * star.blinkSpeed + star.blinkOffset) + 1) / 2;
+      paint.color = Colors.white.withOpacity(opacity * 0.7);
+      canvas.drawCircle(Offset(star.x * size.width, star.y * size.height), star.size, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

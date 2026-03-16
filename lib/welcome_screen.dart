@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart'; // Your main screen (unchanged)
-// This line brings in your combined Login + Sign Up page
-import 'auth_screen.dart'; // ← Make sure auth_screen.dart is in the same folder as this file
+import 'home_page.dart';
+import 'auth_screen.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -29,44 +28,42 @@ class WelcomePage extends StatelessWidget {
         child: Stack(
           children: [
 
-            // Top-left floating bubbles (exact match)
+            // ── Large soft glow circle behind astronaut ──
             Positioned(
-              top: screenHeight * 0.08,
-              left: screenWidth * 0.23,
-              child: _bubble(26, const Color.fromRGBO(90, 100, 160, 0.55)),
-            ),
-            Positioned(
-              top: screenHeight * 0.13,
-              left: screenWidth * 0.16,
-              child: _bubble(18, const Color.fromRGBO(110, 120, 190, 0.45)),
-            ),
-            Positioned(
-              top: screenHeight * 0.20,
-              left: screenWidth * 0.23,
-              child: _bubble(22, const Color.fromRGBO(80, 90, 150, 0.65)),
-            ),
-
-            // Large soft circle behind astronaut (perfect size & opacity)
-            Positioned(
-              top: screenHeight * 0.06,
-              left: screenWidth * 0.25,
-              child: Container(
-                width: screenWidth * 0.88,
-                height: screenHeight * 0.50,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color.fromRGBO(120, 90, 200, 0.22),
+              top: screenHeight * 0.04,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Container(
+                  width: screenWidth * 0.82,
+                  height: screenWidth * 0.82,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color.fromRGBO(120, 90, 200, 0.22),
+                  ),
                 ),
               ),
             ),
 
-            // Astronaut - perfectly centered and sized
+            // ── Top-left floating small bubbles ──
             Positioned(
-              top: screenHeight * 0.03,
-              left: screenWidth * 0.19,
+              top: screenHeight * 0.08,
+              left: screenWidth * 0.10,
+              child: _bubble(14, const Color.fromRGBO(110, 120, 190, 0.55)),
+            ),
+            Positioned(
+              top: screenHeight * 0.14,
+              left: screenWidth * 0.06,
+              child: _bubble(10, const Color.fromRGBO(110, 120, 190, 0.45)),
+            ),
+
+            // ── Astronaut — centered horizontally, upper half ──
+            Positioned(
+              top: screenHeight * 0.04,
+              left: screenWidth * 0.10,
+              right: screenWidth * 0.10,
               child: SizedBox(
-                width: screenWidth * 0.74,
-                height: screenHeight * 0.60,
+                height: screenHeight * 0.55,
                 child: Image.asset(
                   'assets/images/astronaut.png',
                   fit: BoxFit.contain,
@@ -74,50 +71,54 @@ class WelcomePage extends StatelessWidget {
               ),
             ),
 
-            // 3 Bubbles behind the text (1 big + 2 small) - EXACTLY like your screenshot
+            // ── Large decorative bubble bottom-left (behind title) ──
             Positioned(
-              top: screenHeight * 0.55,
-              left: screenWidth * 0.02,
-              child: _bubble(screenWidth * 0.42, const Color.fromRGBO(140, 100, 220, 0.18)), // Large one
-            ),
-            Positioned(
-              top: screenHeight * 0.69,
-              right: screenWidth * 0.28,
-              child: _bubble(32, const Color.fromRGBO(160, 120, 240, 0.25)),
-            ),
-            Positioned(
-              top: screenHeight * 0.75,
-              left: screenWidth * 0.08,
-              child: _bubble(24, const Color.fromRGBO(130, 100, 200, 0.20)),
+              top: screenHeight * 0.54,
+              left: -screenWidth * 0.10,
+              child: _bubble(
+                screenWidth * 0.48,
+                const Color.fromRGBO(140, 100, 220, 0.18),
+              ),
             ),
 
-            // Title - Left aligned, perfect font & spacing
+            // ── Two small accent bubbles near title ──
             Positioned(
-              top: screenHeight * 0.60,
-              left: screenWidth * 0.40,
-              right: screenWidth * 0.14,
+              top: screenHeight * 0.70,
+              left: screenWidth * 0.38,
+              child: _bubble(20, const Color.fromRGBO(160, 120, 240, 0.30)),
+            ),
+            Positioned(
+              top: screenHeight * 0.76,
+              left: screenWidth * 0.06,
+              child: _bubble(14, const Color.fromRGBO(130, 100, 200, 0.25)),
+            ),
+
+            // ── Title — bottom-left, matching screenshot ──
+            Positioned(
+              top: screenHeight * 0.58,
+              left: screenWidth * 0.06,
+              right: screenWidth * 0.06,
               child: const Text(
                 'EXPLORE THE\nUNKNOWN.',
                 textAlign: TextAlign.left,
                 style: TextStyle(
                   color: Colors.white,
                   fontFamily: 'Inter',
-                  fontSize: 38,
+                  fontSize: 36,
                   fontWeight: FontWeight.w700,
-                  height: 1.08,
-                  letterSpacing: 1.0,
+                  height: 1.15,
+                  letterSpacing: 0.8,
                 ),
               ),
             ),
 
-            // GET STARTED Button - NOW OPENS LOGIN/SIGNUP (visuals unchanged)
+            // ── GET STARTED button ──
             Positioned(
               bottom: screenHeight * 0.09,
               left: screenWidth * 0.22,
               right: screenWidth * 0.22,
               child: GestureDetector(
                 onTap: () {
-                  // This opens your combined Login/Sign Up screen
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => const AuthScreen(),
@@ -138,7 +139,7 @@ class WelcomePage extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.purple.withValues(alpha: 0.5), // Updated for modern Flutter
+                        color: Colors.purple.withValues(alpha: 0.5),
                         blurRadius: 22,
                         offset: const Offset(0, 10),
                       ),
@@ -159,44 +160,6 @@ class WelcomePage extends StatelessWidget {
               ),
             ),
 
-            // Bottom text - "SIGN UP" now opens Login/Sign Up screen too
-            // Positioned(
-            //   bottom: screenHeight * 0.07,
-            //   left: 0,
-            //   right: 0,
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.center,
-            //     children: [
-            //       const Text(
-            //         "DON'T HAVE AN ACCOUNT? ",
-            //         style: TextStyle(
-            //           color: Colors.white70,
-            //           fontSize: 13.5,
-            //           fontWeight: FontWeight.w500,
-            //         ),
-            //       ),
-            //       GestureDetector(
-            //         onTap: () {
-            //           // This also opens your combined Login/Sign Up screen
-            //           Navigator.of(context).push(
-            //             MaterialPageRoute(
-            //               builder: (_) => const AuthScreen(),
-            //             ),
-            //           );
-            //         },
-            //         child: const Text(
-            //           'SIGN UP',
-            //           style: TextStyle(
-            //             color: Color.fromRGBO(220, 160, 255, 1),
-            //             fontSize: 13.5,
-            //             fontWeight: FontWeight.bold,
-            //             decoration: TextDecoration.underline,
-            //           ),
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
           ],
         ),
       ),

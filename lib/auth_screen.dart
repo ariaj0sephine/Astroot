@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'services/auth_services.dart';     // Your AuthService file
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';  // NEW: For optional name save
@@ -68,9 +69,9 @@ class _LoginPageState extends State<LoginPage> {
       height: double.infinity,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment(-0.15, 0.77),
-          end: Alignment(-0.77, -0.73),
-          colors: [Color(0xFF00132D), Color(0xFF001E45), Color(0xFF002657)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF070B19), Color(0xFF0F172A), Color(0xFF1E1B4B)], // Deeper cosmic colors
         ),
       ),
       child: Stack(
@@ -135,44 +136,60 @@ class _LoginPageState extends State<LoginPage> {
 
                   const Text('E MAIL', style: TextStyle(color: Colors.white, fontSize: 12)),
                   const SizedBox(height: 8),
-                  TextField(
-                    controller: emailController,
-                    style: const TextStyle(color: Color(0xFF6A788B)),
-                    decoration: InputDecoration(
-                      hintText: 'Example@gmail.com',
-                      hintStyle: const TextStyle(color: Color(0xFF6A788B), fontSize: 14),
-                      filled: true,
-                      fillColor: const Color(0xFF333976),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(color: const Color(0xFF5F6ADC).withOpacity(0.15), blurRadius: 15, spreadRadius: 2),
+                      ]
+                    ),
+                    child: TextField(
+                      controller: emailController,
+                      style: const TextStyle(color: Color(0xFF6A788B)),
+                      decoration: InputDecoration(
+                        hintText: 'Example@gmail.com',
+                        hintStyle: const TextStyle(color: Color(0xFF6A788B), fontSize: 14),
+                        filled: true,
+                        fillColor: const Color(0xFF1E244B), // Darker field background
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
 
                   const Text('PASSWORD', style: TextStyle(color: Colors.white, fontSize: 12)),
                   const SizedBox(height: 8),
-                  TextField(
-                    controller: passwordController,
-                    obscureText: _obscurePassword,
-                    style: const TextStyle(color: Color(0xFF6A788B)),
-                    decoration: InputDecoration(
-                      hintText: 'Example_1',
-                      hintStyle: const TextStyle(color: Color(0xFF6A788B), fontSize: 14),
-                      filled: true,
-                      fillColor: const Color(0xFF333976),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                          color: Colors.white70,
-                          size: 24,
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(color: const Color(0xFF5F6ADC).withOpacity(0.15), blurRadius: 15, spreadRadius: 2),
+                      ]
+                    ),
+                    child: TextField(
+                      controller: passwordController,
+                      obscureText: _obscurePassword,
+                      style: const TextStyle(color: Color(0xFF6A788B)),
+                      decoration: InputDecoration(
+                        hintText: 'Example_1',
+                        hintStyle: const TextStyle(color: Color(0xFF6A788B), fontSize: 14),
+                        filled: true,
+                        fillColor: const Color(0xFF1E244B),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                            color: Colors.white70,
+                            size: 24,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
                         ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
                       ),
                     ),
                   ),
@@ -192,7 +209,10 @@ class _LoginPageState extends State<LoginPage> {
                       height: 52,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
-                        gradient: const LinearGradient(colors: [Color(0xFF333976), Color(0xFF5F6ADC)]),
+                        gradient: const LinearGradient(colors: [Color(0xFF4B56D2), Color(0xFF828DF8)]),
+                        boxShadow: [
+                          BoxShadow(color: const Color(0xFF4B56D2).withOpacity(0.5), blurRadius: 20, spreadRadius: 2),
+                        ]
                       ),
                       child: ElevatedButton(
                         onPressed: () async {
@@ -259,7 +279,7 @@ class _LoginPageState extends State<LoginPage> {
                   "DON'T HAVE AN ACCOUNT? SIGN UP",
                   style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500, fontFamily: 'Inter'),
                 ),
-              ),
+              ).animate().fade(duration: 600.ms).slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
             ),
           ),
         ],
@@ -302,9 +322,9 @@ class _SignUpPageState extends State<SignUpPage> {
       height: double.infinity,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment(-0.15, 0.77),
-          end: Alignment(-0.77, -0.73),
-          colors: [Color(0xFF00132D), Color(0xFF001E45), Color(0xFF002657)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF070B19), Color(0xFF0F172A), Color(0xFF1E1B4B)],
         ),
       ),
       child: SafeArea(
@@ -455,12 +475,13 @@ class _SignUpPageState extends State<SignUpPage> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5F6ADC),
+                    backgroundColor: Colors.transparent, // Let gradient show
+                    shadowColor: Colors.transparent, // Disable default shadow
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
                   child: const Text('CREATE ACCOUNT', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                 ),
-              ),
+              ).animate().shimmer(duration: 1500.ms, delay: 500.ms),
 
               const SizedBox(height: 30),
 
@@ -489,19 +510,25 @@ class _SignUpPageState extends State<SignUpPage> {
     required TextEditingController controller,
     TextInputType keyboardType = TextInputType.text,
   }) {
-    return TextField(
-      controller: controller,
-      keyboardType: keyboardType,
-      style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.white, fontSize: 12),
-        hintText: hint,
-        hintStyle: const TextStyle(color: Colors.white38),
-        filled: true,
-        fillColor: const Color(0xFF333976),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [BoxShadow(color: const Color(0xFF5F6ADC).withOpacity(0.1), blurRadius: 10, spreadRadius: 1)]
+      ),
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(color: Colors.white, fontSize: 12),
+          hintText: hint,
+          hintStyle: const TextStyle(color: Colors.white38),
+          filled: true,
+          fillColor: const Color(0xFF1E244B),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
+        ),
       ),
     );
   }

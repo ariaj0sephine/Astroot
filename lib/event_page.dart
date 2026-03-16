@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class EventWidget extends StatefulWidget {
   const EventWidget({super.key});
@@ -142,10 +143,12 @@ class _EventWidgetState extends State<EventWidget> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
                       decoration: BoxDecoration(
-                        color: selectedFilter == 'meteor'
-                            ? const Color(0xFF725ABA)
-                            : const Color.fromRGBO(51, 57, 118, 1),
+                        gradient: selectedFilter == 'meteor' 
+                            ? const LinearGradient(colors: [Color(0xFF5F6ADC), Color(0xFF725ABA)])
+                            : const LinearGradient(colors: [Color(0xFF1E244B), Color(0xFF2D325A)]),
                         borderRadius: BorderRadius.circular(30),
+                        boxShadow: selectedFilter == 'meteor' 
+                            ? [BoxShadow(color: const Color(0xFF5F6ADC).withOpacity(0.4), blurRadius: 10)] : null,
                       ),
                       child: const Text('Meteor showers', style: TextStyle(color: Colors.white, fontSize: 15)),
                     ),
@@ -160,10 +163,12 @@ class _EventWidgetState extends State<EventWidget> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
                       decoration: BoxDecoration(
-                        color: selectedFilter == 'eclipse'
-                            ? const Color(0xFF725ABA)
-                            : const Color.fromRGBO(51, 57, 118, 1),
+                        gradient: selectedFilter == 'eclipse' 
+                            ? const LinearGradient(colors: [Color(0xFF5F6ADC), Color(0xFF725ABA)])
+                            : const LinearGradient(colors: [Color(0xFF1E244B), Color(0xFF2D325A)]),
                         borderRadius: BorderRadius.circular(30),
+                        boxShadow: selectedFilter == 'eclipse' 
+                            ? [BoxShadow(color: const Color(0xFF5F6ADC).withOpacity(0.4), blurRadius: 10)] : null,
                       ),
                       child: const Text('Eclipses', style: TextStyle(color: Colors.white, fontSize: 15)),
                     ),
@@ -206,8 +211,15 @@ class _EventWidgetState extends State<EventWidget> {
                       child: Container(
                         constraints: const BoxConstraints(minHeight: 150),
                         decoration: BoxDecoration(
-                          color: const Color.fromRGBO(51, 57, 118, 1),
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [Color(0xFF1A1F2E), Color(0xFF2D325A)],
+                          ),
                           borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(color: const Color(0xFF5F6ADC).withOpacity(0.15), blurRadius: 8, spreadRadius: 1)
+                          ]
                         ),
                         child: Row(
                           children: [
@@ -270,7 +282,7 @@ class _EventWidgetState extends State<EventWidget> {
                           ],
                         ),
                       ),
-                    ),
+                    ).animate(delay: (index * 100).ms).fade(duration: 500.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOutQuad),
                   );
                 },
               ),

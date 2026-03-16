@@ -33,6 +33,14 @@ class MyApp extends StatelessWidget {
           backgroundColor: Color(0xFF1A1F2E),  // Subtle blue for future bars
           foregroundColor: Colors.white,  // White icons/text
         ),
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: {
+            TargetPlatform.android: ZoomPageTransitionsBuilder(
+              allowEnterRouteSnapshotting: false,
+            ),
+            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          },
+        ),
       ),
       home: const SplashWidget(), // Or whatever your first auth screen is
       routes: {  // Easy jumps (bonus—your Auth uses pushReplacement to /home)
