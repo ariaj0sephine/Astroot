@@ -236,13 +236,16 @@ class _CameraTabState extends State<CameraTab> {
 
         // Your fact list (add all your trained labels here!)
         final Map<String, String> facts = {
-          'Orion': 'Famous hunter constellation—easy to spot with three belt stars and bright Betelgeuse!',
-          'Sirius': 'Brightest star in the night sky – known as the Dog Star!',
-          'Jupiter': 'Largest planet – visible as a bright "star" with moons!',
-          'Venus': 'Brightest planet – often called the Evening or Morning Star!',
-          'Orion Nebula': 'Stunning star factory – visible as fuzzy patch in Orion!',
-          'Polaris': 'The North Star – helps navigation for centuries!',
-          // Add more for your trained classes!
+          'Taurus': 'The Bull constellation! Home to the bright red star Aldebaran and the beautiful Pleiades star cluster.',
+          'Cancer': 'The Crab constellation. Contains the Beehive Cluster (M44) — looks like a swarm of stars in binoculars!',
+          'Vulpecula': 'The Little Fox constellation. Contains the famous Dumbbell Nebula — one of the brightest planetary nebulae!',
+          'Scorpius': 'The Scorpion! Easy to spot with its bright red heart (Antares) and curved tail. Visible in summer skies.',
+          'Orion': 'The Hunter — the most famous constellation! Three bright stars form his belt, with Betelgeuse and Rigel shining bright.',
+          'Sirius': 'The brightest star in the night sky! Also called the Dog Star — part of Canis Major.',
+          'Jupiter': 'Largest planet in our solar system — looks like a bright "star" and has visible moons in small telescopes.',
+          'Venus': 'Brightest planet! Often called the Evening Star or Morning Star — shines like a diamond.',
+          'Polaris': 'The North Star! Always points north and stays almost still while other stars rotate around it.',
+          'Orion Nebula': 'A giant star-forming factory — looks like a fuzzy patch in Orion’s sword. Visible even with naked eye!',
         };
 
         String fact = facts[identifiedName] ?? 'Amazing find! This is a celestial object.';
@@ -252,23 +255,31 @@ class _CameraTabState extends State<CameraTab> {
             context: context,
             builder: (context) => AlertDialog(
               backgroundColor: const Color(0xFF1A1F2E),
-              title: Text('Nyckel Says: $identifiedName (${confidence.toStringAsFixed(0)}% sure) 🌟',
-                  style: const TextStyle(color: Colors.white, fontSize: 22)),
+              title: Text(
+                'Nyckel Says: $identifiedName (${confidence.toStringAsFixed(0)}% sure) 🌟',
+                style: const TextStyle(color: Colors.white, fontSize: 22),
+              ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Fun Fact:', style: TextStyle(color: Color(0xFF64B5FF), fontSize: 18)),
+                  const Text(
+                    'Fun Fact:',
+                    style: TextStyle(color: Color(0xFF64B5FF), fontSize: 18),
+                  ),
                   const SizedBox(height: 10),
-                  Text(fact, style: const TextStyle(color: Colors.white70, fontSize: 16)),
+                  Text(
+                    fact,
+                    style: const TextStyle(color: Colors.white70, fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
                   const SizedBox(height: 20),
-                  Container(
-                    height: 200,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      image: const DecorationImage(
-                        image: AssetImage('assets/images/background.jpg'),
-                        fit: BoxFit.cover,
-                      ),
+                  // REAL PHOTO instead of placeholder!
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.memory(
+                      processedBytes,
+                      height: 220,
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ],
@@ -279,7 +290,10 @@ class _CameraTabState extends State<CameraTab> {
                     await _saveToDatabase(processedBytes, {'name': identifiedName, 'fact': fact});
                     if (mounted) Navigator.pop(context);
                   },
-                  child: const Text('Amazing! Back to Camera', style: TextStyle(color: Color(0xFF64B5FF))),
+                  child: const Text(
+                    'Amazing! Back to Camera',
+                    style: TextStyle(color: Color(0xFF64B5FF), fontSize: 16),
+                  ),
                 ),
               ],
             ),

@@ -191,32 +191,29 @@ class RealHomeTab extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildNavCard('AR CAM', Icons.camera_alt, null, context), // Push camera
+                _buildNavCard('VISIBLE TONIGHT', Icons.star, null, context), // Push camera
                 _buildNavCard('CALENDAR', Icons.calendar_today, 2, context),  // Tab 1
                 _buildNavCard('PROFILE', Icons.person, 3, context),  // Tab 2
               ],
             ),
           ),
 
-          // Events (top:525, 35px space—no overlap)
+          // Major Upcoming Event (bg image replaced with exact purple color matching top logo card)
           Positioned(
             top: 525,
-            left: 12,
+            left: 18,
             right: 12,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Tonight’s Sky Events', style: TextStyle(color: Colors.white, fontSize: 24)),
+                const Text('Major Upcoming Event', style: TextStyle(color: Colors.white, fontSize: 24)),
                 const SizedBox(height: 35),
                 Container(
                   width: double.infinity,
-                  height: 80,
+                  height: 100,
                   decoration: BoxDecoration(
+                    color: const Color.fromRGBO(51, 57, 118, 1),  // ← exact same color as top ASTROOT logo card
                     borderRadius: BorderRadius.circular(15),
-                    image: const DecorationImage(
-                      image: AssetImage('assets/images/background.jpg'),
-                      fit: BoxFit.cover,
-                    ),
                   ),
                   child: const Padding(
                     padding: EdgeInsets.only(left: 133),
@@ -224,8 +221,8 @@ class RealHomeTab extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('AR Camera', style: TextStyle(color: Colors.white, fontSize: 20)),
-                        Text('blah blah blah', style: TextStyle(color: Colors.white, fontSize: 16)),
+                        Text('Lyrids Meteor Shower', style: TextStyle(color: Colors.white, fontSize: 20)),
+                        Text('April 22–23, 2026', style: TextStyle(color: Colors.white, fontSize: 16)),
                       ],
                     ),
                   ),
@@ -234,9 +231,9 @@ class RealHomeTab extends StatelessWidget {
             ),
           ),
 
-          // Bottom Image (bottom:40—your screenshot exact)
+          // Bottom Image (moved a little above as you asked — now at bottom:75)
           Positioned(
-            bottom: 40,
+            bottom: 70,
             left: 30,
             child: Container(
               width: 97,
@@ -244,7 +241,7 @@ class RealHomeTab extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 image: const DecorationImage(
-                  image: AssetImage('assets/images/event_home.jpg'),
+                  image: AssetImage('assets/images/lyrids.jpg'),
                   fit: BoxFit.cover,
                 ),
               ),

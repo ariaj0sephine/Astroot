@@ -13,7 +13,7 @@ class _HistoryPageState extends State<HistoryPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Cosmic gradient—exact match from HomeScreen for immersive feel
+  // Same beautiful cosmic gradient
   static const LinearGradient _cosmicGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
@@ -28,12 +28,11 @@ class _HistoryPageState extends State<HistoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Get current user—if null, show sign-in prompt
     final User? currentUser = _auth.currentUser;
 
     return Scaffold(
-      backgroundColor: Colors.transparent, // Transparent to let gradient shine
-      extendBodyBehindAppBar: true,  // ← Add this exact line
+      backgroundColor: Colors.transparent,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -45,36 +44,42 @@ class _HistoryPageState extends State<HistoryPage> {
           'History',
           style: TextStyle(color: Colors.white, fontSize: 24),
         ),
-        // No actions—clean top bar
       ),
-      body: Container(  // Wrap body in gradient container
+      body: Container(
         decoration: const BoxDecoration(gradient: _cosmicGradient),
         child: currentUser == null
-            ? _buildSignInPrompt()  // No user? Prompt to sign in
+            ? _buildSignInPrompt()
             : Padding(
-          padding: const EdgeInsets.all(80),
+          // ← THIS IS THE FIX: big top padding so nothing feels congested
+          padding: const EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 110,    // ← increased for clean space below app bar
+            bottom: 16,
+          ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Recent history:',
                 style: TextStyle(color: Colors.white70, fontSize: 16),
               ),
-              const SizedBox(height: 24),
-              Expanded(  // Takes full space, scrolls if many items
+              const SizedBox(height: 5), // extra breathing space
+              Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore
                       .collection('users')
-                      .doc(currentUser.uid)  // User's private collection
+                      .doc(currentUser.uid)
                       .collection('observations')
-                      .orderBy('date', descending: true)  // Newest first
-                      .snapshots(),  // Real-time listener
+                      .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator(color: Colors.white));
                     }
                     if (snapshot.hasError) {
-                      return const Center(child: Text('Oops! Error loading history. Try again.', style: TextStyle(color: Colors.white)));
+                      return const Center(
+                        child: Text('Error loading history', style: TextStyle(color: Colors.red)),
+                      );
                     }
                     if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                       return const Center(
@@ -86,18 +91,31 @@ class _HistoryPageState extends State<HistoryPage> {
                       );
                     }
 
-                    // Build list from real data
                     final observations = snapshot.data!.docs;
+
                     return ListView.builder(
                       itemCount: observations.length,
                       itemBuilder: (context, index) {
                         final doc = observations[index];
                         final data = doc.data() as Map<String, dynamic>;
-                        final String objectName = data['objectName'] ?? 'Unknown Object';
-                        final Timestamp? dateStamp = data['date'];
-                        final String date = _formatDate(dateStamp);  // Helper below
 
-                        return _buildHistoryItem(objectName, date);
+                        final String starName = data['star_name'] ?? 'Unknown Object';
+                        final String fact = data['fact'] ?? '';
+                        final dynamic ts = data['timestamp'];
+
+                        // FIXED: show real timestamp (string or Timestamp)
+                        String displayDate = 'Unknown Date';
+                        if (ts != null) {
+                          if (ts is Timestamp) {
+                            displayDate = _formatDate(ts);
+                          } else if (ts is String) {
+                            displayDate = ts; // your current "25 February 2026 at 20:31:14 UTC+5:30"
+                          } else {
+                            displayDate = ts.toString();
+                          }
+                        }
+
+                        return _buildHistoryItem(starName, fact, displayDate);
                       },
                     );
                   },
@@ -110,7 +128,6 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
-  // Sign-in prompt (simple—ties to your profile/auth)
   Widget _buildSignInPrompt() {
     return Center(
       child: Column(
@@ -126,8 +143,7 @@ class _HistoryPageState extends State<HistoryPage> {
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
-              // Push to your sign-in screen (add route later, or print for now)
-              print('Navigate to sign-in');  // Replace with Navigator.push to auth page
+              print('Navigate to sign-in');
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
             child: const Text('Sign In', style: TextStyle(color: Colors.white)),
@@ -137,23 +153,19 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
-  // Format Timestamp to "Dec 31, 2025" (matches screenshot and current date)
-  String _formatDate(Timestamp? timestamp) {
-    if (timestamp == null) return 'Unknown Date';
+  // Format Timestamp nicely (if you ever save real Timestamp)
+  String _formatDate(Timestamp timestamp) {
     final dateTime = timestamp.toDate();
-    // Outputs "Dec 31, 2025" format—perfect for your test data
     final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    final month = months[dateTime.month - 1];
-    return '${month} ${dateTime.day}, ${dateTime.year}';
+    return '${months[dateTime.month - 1]} ${dateTime.day}, ${dateTime.year}';
   }
 
-  // Your original item builder (unchanged—looks just like screenshot, blends with gradient)
-  Widget _buildHistoryItem(String title, String date) {
+  Widget _buildHistoryItem(String starName, String fact, String date) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),  // Subtle transparency—glows against gradient
+        color: Colors.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -173,9 +185,20 @@ class _HistoryPageState extends State<HistoryPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
-                  style: const TextStyle(color: Colors.white, fontSize: 18),
+                  starName,
+                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                 ),
+                if (fact.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      fact,
+                      style: const TextStyle(color: Colors.white70, fontSize: 14),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                const SizedBox(height: 6),
                 Text(
                   date,
                   style: const TextStyle(color: Colors.white54, fontSize: 14),
