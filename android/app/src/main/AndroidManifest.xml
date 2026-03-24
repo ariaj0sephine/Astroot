@@ -7,7 +7,7 @@
         <uses-feature android:name="android.hardware.camera.ar" android:required="true" />
 
     <application
-        android:label="project"
+        android:label="ASTROOT"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">

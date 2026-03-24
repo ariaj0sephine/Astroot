@@ -39,11 +39,14 @@ dependencies:
   flutter_datetime_picker_plus: ^2.2.0  # Simple date/time picker
   geocoding: ^3.0.0
   flutter_animate: ^4.5.2
+  lottie: ^3.3.2
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4   # use this version — it's stable in 2025/2026
 
 flutter:
   uses-material-design: true
@@ -63,3 +66,11 @@ flutter:
       fonts:
         - asset: assets/fonts/Funkie_Retro.otf
           weight: 400
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/astroot_icon_padded.png"   # ← use the padded one you made
+  adaptive_icon_background: "#000000"                 # black space theme
+  adaptive_icon_foreground: "assets/icons/astroot_icon_padded.png"
+  adaptive_icon_foreground_inset: 20               # ← this removes the white space
